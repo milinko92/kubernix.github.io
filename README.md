@@ -26,10 +26,10 @@ It is also a personal knowledge base and a public guide for others taking the sa
 
 ## 🗂️ Projects
 
-- 🛡️ [Pi-hole + Unbound DNS](https://kubernix.com/#pihole)  
-- 🖥️ [Proxmox + Arch Linux VM](https://kubernix.com/#proxmox)  
-- ⚙️ [Bash / PowerShell Automation](https://kubernix.com/#automation)  
-- ☁️ [AWS Foundations](https://kubernix.com/#aws)  
+- 🛡️ [Pi-hole + Unbound DNS](https://kubernix.com/pihole.html)  
+- 🖥️ [Proxmox + Arch Linux VM](https://kubernix.com/proxmox.html)  
+- ⚙️ [Bash / PowerShell Automation](https://kubernix.com/automation.html)  
+- ☁️ [AWS Foundations](https://kubernix.com/aws.html)  
 
 More labs and configs will be added as the journey continues.
 
