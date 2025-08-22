@@ -1,38 +1,168 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Kubernix - DevOps Journey</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Journeyto DevOps · Kubernix</title>
+  <meta name="description" content="Journey to DevOps is a learning and project hub documenting a practical path into DevOps: Linux, networking, cloud, homelab, and automation." />
+
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; background: #111; color: #eee; }
-    header { padding: 4em 1em; }
-    h1 { font-size: 2.5em; margin: 0; }
-    p.tagline { font-size: 1.2em; color: #aaa; }
-    .btn { display: inline-block; margin-top: 1em; padding: 0.8em 1.5em; background: #0070f3; color: #fff; text-decoration: none; border-radius: 6px; }
-    section { padding: 2em 1em; }
-    footer { padding: 1em; font-size: 0.9em; color: #555; }
+    :root{
+      --linen: #FAF0E6;
+      --wheat: #F5DEB3;
+      --paper: #FFFAF0;
+      --ink: #333333;
+      --ink-soft:#4f4f4f;
+      --rule: #ddd3c3;
+      --link:#007fff;
+    }
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(245,222,179,.35), transparent 60%),
+        linear-gradient(180deg, var(--linen), #fff 60%, var(--linen));
+    }
+    .wrap{max-width: 1000px; margin: 0 auto; padding: 32px 16px;}
+    header{
+      position: sticky; top:0; z-index:10;
+      backdrop-filter: blur(6px);
+      background: color-mix(in oklab, var(--linen) 70%, white);
+      border-bottom: 1px solid var(--rule);
+    }
+    header .bar{display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 0;}
+    .brand{font-weight:800; letter-spacing:.5px; font-size: clamp(18px, 3vw, 22px);}
+    .tag{color: var(--ink-soft); font-weight:500}
+
+    nav .menus{display:flex; gap:10px; flex-wrap:wrap}
+    details{
+      position:relative; display:inline-block;
+      border:1px solid var(--rule); border-radius:10px; background: var(--paper);
+      padding:6px 10px;
+    }
+    details > summary{list-style:none; cursor:pointer; outline:none;}
+    details[open] > summary{border-bottom:1px dashed var(--rule)}
+    details ul{
+      position:absolute; left:0; right:0; top: calc(100% + 2px);
+      margin:0; padding:8px; list-style:none;
+      background: var(--paper);
+      border:1px solid var(--rule); border-radius:10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    details ul li{margin:0; padding:6px 6px}
+    a{color: var(--link); text-decoration: none}
+    a:hover{text-decoration: underline}
+
+    .paper{
+      background: var(--paper);
+      border: 1px solid var(--rule);
+      border-radius: 16px;
+      box-shadow: 0 2px 0 rgba(0,0,0,.02), 0 12px 30px rgba(0,0,0,.06);
+      padding: 28px;
+    }
+    .infobox{
+      float:right; width:min(280px, 40%); margin: 0 0 16px 24px;
+      background: white; border:1px solid var(--rule); border-radius:12px; padding:12px 14px;
+      font-size: 14px;
+    }
+    .infobox h3{margin:.2rem 0 .4rem 0; font-size:16px}
+    .infobox table{width:100%; border-collapse: collapse}
+    .infobox td{padding:6px 0; border-bottom:1px dashed #eee}
+    .infobox td:first-child{color:#666}
+    h1{margin: 0 0 8px 0; font-size: clamp(26px, 4vw, 34px)}
+    h2{margin-top: 26px; font-size: 20px; border-bottom: 1px solid var(--rule); padding-bottom:6px}
+    p{line-height:1.6}
+    ul{line-height:1.6}
+    footer{border-top:1px solid var(--rule); color:#666; font-size:14px; padding:18px 0; margin-top:32px}
+    .muted{color:#777}
+    @media (max-width: 780px){
+      .infobox{float:none; width:100%; margin: 0 0 16px 0}
+    }
   </style>
 </head>
 <body>
   <header>
-    <h1>Kubernix</h1>
-    <p class="tagline">DevOps Journey | Homelab | Cloud</p>
-    <a href="blog.kubernix.com" class="btn">Read my Blog →</a>
+    <div class="wrap bar">
+      <div>
+        <div class="brand">Kubernix</div>
+        <div class="tag">DevOps Journey · Homelab · Cloud</div>
+      </div>
+      <nav aria-label="Primary">
+        <div class="menus">
+          <details>
+            <summary>Projects</summary>
+            <ul>
+              <li><a href="#pihole">Pi-hole + Unbound DNS</a></li>
+              <li><a href="#proxmox">Proxmox + Arch VM</a></li>
+              <li><a href="#automation">Bash/PowerShell Automation</a></li>
+              <li><a href="#aws">AWS Foundations</a></li>
+            </ul>
+          </details>
+          <details>
+            <summary>Labs</summary>
+            <ul>
+              <li><a href="#networking">Networking Scenarios</a></li>
+              <li><a href="#observability">Logs & Monitoring</a></li>
+              <li><a href="#ci">CI/CD Experiments</a></li>
+            </ul>
+          </details>
+          <details>
+            <summary>Resources</summary>
+            <ul>
+              <li><a href="https://kubernix.com" target="_blank" rel="noopener">GitHub Page</a></li>
+              <li><a href="https://blog.kubernix.com" target="_blank" rel="noopener">Personal Blog</a></li>
+              <li><a href="#roadmap">Learning Roadmap</a></li>
+            </ul>
+          </details>
+        </div>
+      </nav>
+    </div>
   </header>
 
-  <section>
-    <h2>About Me</h2>
-    <p>Hi, I’m Marko — exploring DevOps, building homelabs, and sharing my learning path.</p>
-  </section>
+  <main class="wrap">
+    <article class="paper" id="article">
+      <aside class="infobox">
+        <h3>Journeyto DevOps</h3>
+        <table>
+          <tr><td>Type</td><td>Learning & project hub</td></tr>
+          <tr><td>Focus</td><td>Linux, Networking, Cloud, Automation</td></tr>
+          <tr><td>Maintainer</td><td>Kubernix</td></tr>
+          <tr><td>Started</td><td>2025</td></tr>
+          <tr><td>License</td><td>MIT (projects vary)</td></tr>
+          <tr><td>Website</td><td><a href="https://kubernix.com">kubernix.com</a></td></tr>
+        </table>
+      </aside>
 
-  <section>
-    <h2>Projects</h2>
-    <p><a href="https://github.com/kubernix/pi-hole-setup">Pi-Hole DNS Setup</a></p>
-    <p><a href="https://github.com/kubernix/proxmox-arch">Proxmox + Arch Linux Lab</a></p>
-  </section>
+      <h1>Journeyto DevOps</h1>
+      <p><strong>Journey to DevOps</strong> is a practical, documentation-driven path into DevOps that combines study notes, homelab builds, and open projects. It emphasizes foundational skills—Linux, networking, cloud fundamentals, and scripting—progressing toward containerization, IaC, and CI/CD. The repo serves as a record of experiments, troubleshooting, and reusable config.</p>
 
-  <footer>
-    <p>© 2025 Kubernix | <a href="https://github.com/kubernix" style="color:#aaa;">GitHub</a></p>
-  </footer>
+      <h2>Background</h2>
+      <p>Journey to DevOps started as a structured learning path for documenting homelab progress. It provides transparency and reproducibility for others aiming to follow a similar path.</p>
+
+      <h2>Objectives</h2>
+      <ul>
+        <li>Learn Linux, networking, and security fundamentals.</li>
+        <li>Set up a homelab for experiments and failure recovery.</li>
+        <li>Adopt AWS and automation via Bash/PowerShell/Python.</li>
+        <li>Advance into Docker, Kubernetes, Terraform, Ansible, and CI/CD.</li>
+        <li>Share lessons via blog and GitHub Pages.</li>
+      </ul>
+
+      <h2 id="roadmap">Roadmap</h2>
+      <ul>
+        <li><em>Phase 1:</em> LPIC-1, AWS Cloud Practitioner, homelab setup & docs.</li>
+        <li><em>Phase 2:</em> Network+/Security+, scripting, monitoring.</li>
+        <li><em>Phase 3:</em> Docker, Kubernetes, Terraform/Ansible, CI/CD pipelines.</li>
+      </ul>
+    </article>
+
+    <footer>
+      <div class="wrap" style="padding:0">
+        <span class="muted">© 2025 Kubernix · <a href="https://kubernix.com">kubernix.com</a> · <a href="https://blog.kubernix.com">blog.kubernix.com</a></span>
+      </div>
+    </footer>
+  </main>
 </body>
 </html>
