@@ -57,13 +57,18 @@
     details > summary{list-style:none; cursor:pointer; outline:none; color: var(--text)}
     details[open] > summary{border-bottom:1px dashed var(--border)}
     details ul{
-      position:absolute; left:0; right:0; top: calc(100% + 2px);
-      margin:0; padding:8px; list-style:none;
+      position:absolute; left:0; top: calc(100% + 2px);
+      margin:0; padding:4px; list-style:none;
       background: var(--surface);
       border:1px solid var(--border); border-radius:10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,.45);
+      box-shadow: 0 10px 24px rgba(0,0,0,.45);
+      width: max-content;
+      min-width: 180px;
+      z-index: 50;
     }
-    details ul li{margin:0; padding:6px 6px}
+    details ul li{margin:0; padding:0}
+    details ul li a{display:block; padding:6px 10px; text-decoration:none; white-space: nowrap;}
+    details ul li a:hover{background: color-mix(in oklab, var(--primary) 12%, transparent); border-radius:8px; text-decoration:none}
 
     a{color: var(--primary); text-decoration: none}
     a:hover{text-decoration: underline}
@@ -164,18 +169,18 @@
       </aside>
 
       <h1>Journeyto DevOps</h1>
-      <p><strong>Journey to DevOps</strong>is a practical, documentation-driven journey through DevOps that combines study notes, home lab configurations, and open-source projects. It takes the approach of establishing core skills—Linux, networking, cloud fundamentals, and scripting—progressing to containerization, IaC, and CI/CD. The repo serves as a journal of experiments, troubleshooting, and reusable config.</p>
+      <p><strong>Journey to DevOps</strong> is a practical, documentation-driven path into DevOps that combines study notes, homelab builds, and open projects. It emphasizes foundational skills—Linux, networking, cloud fundamentals, and scripting—progressing toward containerization, IaC, and CI/CD. The repo serves as a record of experiments, troubleshooting, and reusable config.</p>
 
       <h2>Background</h2>
-      <p>The journey to DevOps began as a learning initiative to document homelab progress in a structured manner. It provides transparency and reproducibility for others who would like to follow a similar journey.</p>
+      <p>Journey to DevOps started as a structured learning path for documenting homelab progress. It provides transparency and reproducibility for others aiming to follow a similar path.</p>
 
       <h2>Objectives</h2>
       <ul>
-        <li>Master Linux, networking, and security fundamentals.</li>
-        <li>Set up a homelab for experimentation and recovery from failures.</li>
-        <li>Adopt AWS and automation using Bash/PowerShell/Python.</li>
-        <li>Transition into Docker, Kubernetes, Terraform, Ansible, and CI/CD.</li>
-        <li>Share learnings through blog and GitHub Pages.</li>
+        <li>Learn Linux, networking, and security fundamentals.</li>
+        <li>Set up a homelab for experiments and failure recovery.</li>
+        <li>Adopt AWS and automation via Bash/PowerShell/Python.</li>
+        <li>Advance into Docker, Kubernetes, Terraform, Ansible, and CI/CD.</li>
+        <li>Share lessons via blog and GitHub Pages.</li>
       </ul>
 
       <h2 id="roadmap">Roadmap <span class="badge">v1</span></h2>
@@ -192,5 +197,25 @@
       </div>
     </footer>
   </main>
+
+  <script>
+    (function(){
+      const nav = document.querySelector('nav');
+      if(!nav) return;
+      const all = () => Array.from(nav.querySelectorAll('details'));
+      const closeAll = (except) => {
+        all().forEach(d => { if (d !== except && d.hasAttribute('open')) d.removeAttribute('open'); });
+      };
+      all().forEach(d => {
+        d.addEventListener('toggle', () => { if (d.open) closeAll(d); });
+      });
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('nav')) closeAll();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeAll();
+      });
+    })();
+  </script>
 </body>
 </html>
