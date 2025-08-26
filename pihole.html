@@ -4,7 +4,29 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Pi-hole + Unbound DNS · Kubernix</title>
+  <!-- Keep existing site theme -->
   <link rel="stylesheet" href="style.css?v=2" />
+  <!-- Minimal inline styles only for dropdown nav; designed to coexist with existing theme -->
+  <style>
+    /* Dropdown navigation (hover to open) */
+    nav.primary { display:flex; gap:1rem; align-items:center; }
+    nav.primary ul { list-style:none; margin:0; padding:0; display:flex; gap:1rem; }
+    nav.primary li { position:relative; }
+    nav.primary a { text-decoration:none; }
+    nav.primary .dropdown { display:none; position:absolute; top:100%; left:0; min-width:220px; z-index:50; }
+    nav.primary li:hover > .dropdown { display:block; }
+    nav.primary .dropdown ul { display:block; background:var(--card-bg, #1f2329); border:1px solid var(--border, #2b3037); border-radius:12px; padding:.5rem; }
+    nav.primary .dropdown li { padding:.25rem .5rem; white-space:nowrap; }
+    nav.primary .dropdown li a { display:block; padding:.25rem .5rem; }
+    /* Paper tweaks if theme doesn't define them */
+    .paper { border-radius:16px; padding:2rem; }
+    pre { overflow:auto; padding:1rem; border-radius:12px; background:var(--code-bg, #111418); border:1px solid var(--border, #2b3037); }
+    code { font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-size:0.95rem; }
+    .muted { opacity:.85; }
+    .toc a { text-decoration:none; }
+    .kbd { padding:2px 6px; border:1px solid var(--border, #2b3037); border-radius:6px; background:var(--card-bg, #1f2329); font-family:inherit; font-size:0.9em; }
+    .tagline { font-size:0.9rem; opacity:.8; }
+  </style>
 </head>
 <body>
   <header>
@@ -13,14 +35,205 @@
         <div class="brand"><a href="index.html" style="color:inherit;text-decoration:none;">Kubernix</a></div>
         <div class="tag">DevOps Journey · Homelab · Cloud</div>
       </div>
+      <!-- Navigation with hover dropdowns -->
+      <nav class="primary" aria-label="Primary">
+        <ul>
+          <li><a href="#top">Guide</a>
+            <div class="dropdown" role="menu" aria-label="Guide sections">
+              <ul>
+                <li><a href="#introduction">Introduction</a></li>
+                <li><a href="#hardware">Required Hardware</a></li>
+                <li><a href="#software-install">Software Installation</a></li>
+                <li><a href="#configuration">Configuration</a></li>
+                <li><a href="#troubleshooting">Troubleshooting</a></li>
+              </ul>
+            </div>
+          </li>
+          <li><a href="#quick-commands">Quick Commands</a>
+            <div class="dropdown" role="menu" aria-label="Quick commands">
+              <ul>
+                <li><a href="#quick-commands">Update &amp; Upgrade</a></li>
+                <li><a href="#unbound-config">Unbound Config</a></li>
+                <li><a href="#verify">Verify DNS</a></li>
+              </ul>
+            </div>
+          </li>
+          <li><a href="#references">Resources</a>
+            <div class="dropdown" role="menu" aria-label="Resources">
+              <ul>
+                <li><a href="#references">Reference Link</a></li>
+                <li><a href="https://pi-hole.net/" target="_blank" rel="noopener">Pi-hole</a></li>
+                <li><a href="https://www.nlnetlabs.nl/projects/unbound/about/" target="_blank" rel="noopener">Unbound</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </nav>
     </div>
   </header>
-  <main class="wrap">
+
+  <main class="wrap" id="top">
     <article class="paper">
-      <h1>Pi-hole + Unbound DNS</h1>
-      <p>(Content coming soon...)</p>
+      <!-- Project Title -->
+      <h1>Pi-hole + Unbound on Raspberry Pi 4 (Homelab Guide)</h1>
+      <p class="tagline">Network-wide ad blocking with a validating, recursive, caching DNS resolver.</p>
+
+      <!-- Introduction -->
+      <h2 id="introduction">Introduction</h2>
+      <p>
+        Ovaj dokument vodi korak‑po‑korak kroz instalaciju <strong>Pi‑hole</strong> (DNS sinkhole i ad‑blocker)
+        na <strong>Raspberry Pi 4</strong>, zajedno sa <strong>Unbound</strong> kao lokalnim, rekurzivnim i validacionim
+        DNS resolverom. Kombinacija pruža privatnost, brzinu i pouzdanost – bez oslanjanja na eksterne DNS provajdere.
+      </p>
+
+      <!-- Required Hardware -->
+      <h2 id="hardware">Required Hardware</h2>
+      <ul>
+        <li>Raspberry Pi 4 (2–4 GB RAM preporučeno) + napajanje</li>
+        <li>microSD (≥ 16 GB, kvalitetnija A1/A2 preporučena)</li>
+        <li>Ethernet kabl (stabilniji od Wi‑Fi za DNS server)</li>
+        <li>Kućište + hlađenje (po želji)</li>
+      </ul>
+
+      <!-- Software Installation Steps -->
+      <h2 id="software-install">Software Installation Steps</h2>
+      <ol>
+        <li>
+          <strong>Flash Raspberry Pi OS Lite (64‑bit)</strong> pomoću Raspberry Pi Imager‑a. Aktiviraj SSH i postavi hostname.
+        </li>
+        <li>
+          <strong>Prvi login i ažuriranje sistema</strong>:
+          <pre><code>sudo apt update &amp;&amp; sudo apt full-upgrade -y
+sudo reboot</code></pre>
+        </li>
+        <li id="quick-commands">
+          <strong>Postavi statičku IP adresu</strong> (primer sa <code>dhcpcd.conf</code>):
+          <pre><code>sudo nano /etc/dhcpcd.conf
+
+# Example (adjust to your network):
+interface eth0
+static ip_address=192.168.1.10/24
+static routers=192.168.1.1
+static domain_name_servers=127.0.0.1</code></pre>
+          <p class="muted">Napomena: Za DNS klijente u LAN‑u, gateway DHCP treba da oglašava IP ovog Pi‑hole servera.</p>
+        </li>
+        <li>
+          <strong>Instaliraj Pi‑hole</strong> (zvanični installer):
+          <pre><code>curl -sSL https://install.pi-hole.net | bash</code></pre>
+          <p>Tokom instalacije odaberi interfejs (<code>eth0</code>), statičku adresu i privremene upstream DNS (npr. Quad9) – kasnije ćemo prebaciti na Unbound.</p>
+        </li>
+        <li>
+          <strong>Instaliraj Unbound</strong>:
+          <pre><code>sudo apt install -y unbound</code></pre>
+        </li>
+        <li>
+          <strong>Preuzmi root hints</strong> (opcioni cron za mesežno osvežavanje):
+          <pre><code>sudo mkdir -p /var/lib/unbound
+sudo wget -O /var/lib/unbound/root.hints https://www.internic.net/domain/named.root
+# (Opcionalno) automatsko osvežavanje 1× mesečno:
+echo '0 3 1 * * root wget -qO /var/lib/unbound/root.hints https://www.internic.net/domain/named.root' | sudo tee /etc/cron.d/unbound-root-hints</code></pre>
+        </li>
+      </ol>
+
+      <!-- Configuration Steps -->
+      <h2 id="configuration">Configuration Steps</h2>
+      <ol>
+        <li id="unbound-config">
+          <strong>Unbound konfiguracija</strong> – napravi dedicated fajl:
+          <pre><code>sudo nano /etc/unbound/unbound.conf.d/pi-hole.conf</code></pre>
+          <pre><code>server:
+  verbosity: 0
+  logfile: "/var/log/unbound/unbound.log"
+
+  # Listen only locally; Pi-hole will forward to this port.
+  interface: 127.0.0.1
+  port: 5335
+
+  # Security & privacy
+  do-daemonize: no
+  use-caps-for-id: no
+  edns-buffer-size: 1232
+  prefetch: yes
+  qname-minimisation: yes
+  harden-dnssec-stripped: yes
+  harden-glue: yes
+  harden-referral-path: yes
+  aggressive-nsec: yes
+
+  # Root hints (if present); otherwise use builtin root priming
+  root-hints: "/var/lib/unbound/root.hints"
+
+  # Performance
+  cache-min-ttl: 3600
+  cache-max-ttl: 86400
+  msg-cache-size: 128m
+  rrset-cache-size: 256m
+  so-rcvbuf: 1m
+  so-sndbuf: 1m
+
+  # Access control (localhost only)
+  access-control: 127.0.0.0/8 allow</code></pre>
+          <p>Proveri sintaksu i pokreni:</p>
+          <pre><code>sudo unbound-checkconf
+sudo systemctl enable --now unbound</code></pre>
+        </li>
+        <li>
+          <strong>Pi‑hole &rarr; Upstream DNS = Unbound</strong>:
+          <p>U <span class="kbd">http://&lt;IP-of-Pi&gt;/admin</span> &rarr; <em>Settings → DNS</em> uključi <em>Custom 1 (IPv4)</em> i postavi:</p>
+          <pre><code>127.0.0.1#5335</code></pre>
+          <p>Isključi ostale eksternе upstream opcije da svi upiti idu lokalno preko Unbound‑a.</p>
+        </li>
+        <li>
+          <strong>DNSSEC</strong>: Za Unbound kao validator, u Pi‑hole obično nije potrebno uključivati DNSSEC (već ga radi Unbound).
+        </li>
+        <li>
+          <strong>Onemogući konfliktnе servise na portu 53 (ako postoje)</strong>:
+          <pre><code>sudo systemctl disable --now systemd-resolved
+# ili prekonfiguriši da ne sluša na :53 ako ga koristiš iz drugih razloga</code></pre>
+        </li>
+      </ol>
+
+      <!-- Verification -->
+      <h3 id="verify">Verifikacija / testovi</h3>
+      <pre><code># Upit direktno Unbound-u (lokalno)
+dig @127.0.0.1 -p 5335 example.com +dnssec +multi
+
+# Upit preko Pi-hole-a (port 53)
+dig @127.0.0.1 example.com +dnssec +multi
+
+# Provera rekurzije i validacije
+dig @127.0.0.1 -p 5335 dnssec-failed.org A +dnssec
+# očekuje se SERVFAIL (validacija radi)</code></pre>
+
+      <!-- Troubleshooting Tips -->
+      <h2 id="troubleshooting">Troubleshooting Tips</h2>
+      <ul>
+        <li><strong>Port 53 zauzet?</strong> Proveri ko drži port: <code>sudo ss -tulpn | grep :53</code>. Isključi konfliktni servis ili promeni binding.</li>
+        <li><strong>Unbound ne diže?</strong> <code>sudo journalctl -u unbound -b</code>, <code>sudo unbound-checkconf</code> za sintaksu.</li>
+        <li><strong>Spora rezolucija?</strong> Uveri se da je <code>edns-buffer-size</code> ≤ 1232 i da MTU nije prevelik (pokušaj 1500/1492).</li>
+        <li><strong>Pi‑hole ne blokira?</strong> Proveri gravity: <code>pihole -g</code> i potvrdi da klijenti koriste Pi‑hole IP kao primarni DNS.</li>
+        <li><strong>DNSSEC problemi?</strong> Testiraj sa <code>dnssec-failed.org</code>; ako sve propada, privremeno isključi DNSSEC u Pi‑hole (ostavi validator u Unbound‑u).</li>
+        <li><strong>Root hints zastareli?</strong> Osveži ih ručno ili sa cron‑om kao gore.</li>
+      </ul>
+
+      <!-- References -->
+      <h2 id="references">Reference</h2>
+      <p>
+        Primarno sam pratio tutorijal: 
+        <a href="https://www.crosstalksolutions.com/the-worlds-greatest-pi-hole-and-unbound-tutorial-2023/" target="_blank" rel="noopener">
+          Crosstalk Solutions — The World’s Greatest Pi‑hole + Unbound Tutorial (2023)
+        </a>.
+      </p>
+
+      <!-- Footer notes -->
+      <hr />
+      <p class="muted">
+        © 2025 Kubernix — Homelab Documentation. Ovaj dokument je pripremljen za Raspberry Pi 4 i Pi‑hole + Unbound setup
+        sa fokusom na privatnost i performanse.
+      </p>
     </article>
   </main>
+
   <footer>
     <div class="wrap" style="padding:0">
       <span>© 2025 Kubernix · <a href="https://kubernix.com">kubernix.com</a> · <a href="https://blog.kubernix.com">blog.kubernix.com</a></span>
