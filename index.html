@@ -1,111 +1,44 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Journey to DevOps · Kubernix</title>
-  <meta name="description" content="Journey to DevOps is a learning and project hub documenting a practical path into DevOps: Linux, networking, cloud, homelab, and automation." />
-  <link rel="stylesheet" href="style.css?v=2" />
-</head>
-<body>
-  <header>
-    <div class="wrap bar">
-      <div>
-        <div class="brand">Kubernix</div>
-        <div class="tag">DevOps Journey · Homelab · Cloud</div>
-      </div>
-      <nav aria-label="Primary">
-        <div class="menus">
-          <details>
-            <summary>Projects</summary>
-            <ul>
-              <li><a href="pihole.html">Pi-hole + Unbound DNS</a></li>
-              <li><a href="proxmox.html">Proxmox + Arch VM</a></li>
-              <li><a href="automation.html">Bash/PowerShell Automation</a></li>
-              <li><a href="aws.html">AWS Foundations</a></li>
-            </ul>
-          </details>
-          <details>
-            <summary>Labs</summary>
-            <ul>
-              <li><a href="networking.html">Networking Scenarios</a></li>
-              <li><a href="observability.html">Logs & Monitoring</a></li>
-              <li><a href="ci.html">CI/CD Experiments</a></li>
-            </ul>
-          </details>
-          <details>
-            <summary>Resources</summary>
-            <ul>
-              <li><a href="https://kubernix.com" target="_blank" rel="noopener">GitHub Page</a></li>
-              <li><a href="https://blog.kubernix.com" target="_blank" rel="noopener">Personal Blog</a></li>
-              <li><a href="roadmap.html">Learning Roadmap</a></li>
-            </ul>
-          </details>
-        </div>
-      </nav>
+<!doctype html><html><head><meta charset='utf-8'><title>Kubernix</title></head><body><header><div class='wrap bar'><div class='brand'>Kubernix</div></div></header><main class='wrap'><article class='paper'><h1>Journey to DevOps</h1></article></main>  <footer>
+    <div class="wrap" style="padding:0">
+      <span>© 2025 Kubernix · <a href="https://kubernix.com">kubernix.com</a> · <a href="https://blog.kubernix.com">blog.kubernix.com</a></span>
     </div>
-  </header>
-
-  <main class="wrap">
-    <article class="paper" id="article">
-      <aside class="infobox" aria-labelledby="info-heading">
-        <h3 id="info-heading">Journey to DevOps</h3>
-        <table>
-          <tr><td>Type</td><td>Learning & project hub</td></tr>
-          <tr><td>Focus</td><td>Linux, Networking, Cloud, Automation</td></tr>
-          <tr><td>Maintainer</td><td>Kubernix</td></tr>
-          <tr><td>Started</td><td>2025</td></tr>
-          <tr><td>License</td><td>MIT (projects vary)</td></tr>
-          <tr><td>Website</td><td><a href="https://kubernix.com">kubernix.com</a></td></tr>
-        </table>
-      </aside>
-
-      <h1>Journey to DevOps</h1>
-      <p><strong>Journey to DevOps</strong> is a practical, documentation-driven path into DevOps that combines study notes, homelab builds, and open projects. It emphasizes foundational skills—Linux, networking, cloud fundamentals, and scripting—progressing toward containerization, IaC, and CI/CD. The repo serves as a record of experiments, troubleshooting, and reusable config.</p>
-
-      <h2>Background</h2>
-      <p>Journey to DevOps started as a structured learning path for documenting homelab progress. It provides transparency and reproducibility for others aiming to follow a similar path.</p>
-
-      <h2>Objectives</h2>
-      <ul>
-        <li>Learn Linux, networking, and security fundamentals.</li>
-        <li>Set up a homelab for experiments and failure recovery.</li>
-        <li>Adopt AWS and automation via Bash/PowerShell/Python.</li>
-        <li>Advance into Docker, Kubernetes, Terraform, Ansible, and CI/CD.</li>
-        <li>Share lessons via blog and GitHub Pages.</li>
-      </ul>
-
-      <h2 id="roadmap">Roadmap <span class="badge">v1</span></h2>
-      <ul>
-        <li><em>Phase 1:</em> LPIC-1, AWS Cloud Practitioner, homelab setup & docs.</li>
-        <li><em>Phase 2:</em> Network+/Security+, scripting, monitoring.</li>
-        <li><em>Phase 3:</em> Docker, Kubernetes, Terraform/Ansible, CI/CD pipelines.</li>
-      </ul>
-    </article>
-
-    <footer>
-      <div class="wrap" style="padding:0">
-        <span>© 2025 Kubernix · <a href="https://kubernix.com">kubernix.com</a> · <a href="https://blog.kubernix.com">blog.kubernix.com</a></span>
-      </div>
-    </footer>
-  </main>
+  </footer>
 
   <script>
     (function(){
-      const nav = document.querySelector('nav');
-      if(!nav) return;
-      const all = () => Array.from(nav.querySelectorAll('details'));
-      const closeAll = (except) => {
-        all().forEach(d => { if (d !== except && d.hasAttribute('open')) d.removeAttribute('open'); });
-      };
-      all().forEach(d => {
-        d.addEventListener('toggle', () => { if (d.open) closeAll(d); });
+      // Hover-intent dropdowns with single-open behavior
+      const triggers = Array.from(document.querySelectorAll('.trigger'));
+      const menus = triggers.map(btn => document.getElementById(btn.getAttribute('aria-controls')));
+      let openIdx = -1; const timers = new Map();
+      const OPEN_DELAY = 180, CLOSE_DELAY = 240;
+
+      function closeAll(except=-1){ menus.forEach((m,i)=>{ if(i!==except){ m.classList.remove('open'); triggers[i].setAttribute('aria-expanded','false'); }}); }
+
+      function openMenu(i){ if(openIdx!==i){ closeAll(i); menus[i].classList.add('open'); triggers[i].setAttribute('aria-expanded','true'); openIdx=i; } }
+
+      function schedule(key, fn, delay){ clearTimeout(timers.get(key)); const t=setTimeout(fn,delay); timers.set(key,t); }
+
+      triggers.forEach((btn,i)=>{
+        const menu = menus[i];
+        btn.addEventListener('mouseenter', ()=> schedule('open-'+i, ()=> openMenu(i), OPEN_DELAY));
+        btn.addEventListener('focus', ()=> openMenu(i));
+        btn.addEventListener('mouseleave', ()=> schedule('close-'+i, ()=>{ if(!menu.matches(':hover')){ menu.classList.remove('open'); btn.setAttribute('aria-expanded','false'); if(openIdx===i) openIdx=-1; } }, CLOSE_DELAY));
+        btn.addEventListener('click', (e)=>{ e.preventDefault(); const isOpen=menu.classList.contains('open'); if(isOpen){ menu.classList.remove('open'); btn.setAttribute('aria-expanded','false'); openIdx=-1; } else { openMenu(i); } });
+        menu.addEventListener('mouseenter', ()=> clearTimeout(timers.get('close-'+i)));
+        menu.addEventListener('mouseleave', ()=> schedule('close-'+i, ()=>{ menu.classList.remove('open'); btn.setAttribute('aria-expanded','false'); if(openIdx===i) openIdx=-1; }, CLOSE_DELAY));
       });
-      document.addEventListener('click', (e) => {
-        if (!e.target.closest('nav')) closeAll();
+
+      document.addEventListener('keydown', (e)=>{
+        if(e.key==='Escape'){ closeAll(); openIdx=-1; }
+        if(['ArrowRight','ArrowLeft'].includes(e.key)){
+          const idx = triggers.indexOf(document.activeElement);
+          if(idx>-1){ const next = e.key==='ArrowRight' ? (idx+1)%triggers.length : (idx-1+triggers.length)%triggers.length; triggers[next].focus(); }
+        }
       });
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeAll();
+
+      // Click outside to close all
+      document.addEventListener('click', (e)=>{
+        if(!e.target.closest('nav')) closeAll();
       });
     })();
   </script>
